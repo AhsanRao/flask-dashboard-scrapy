@@ -1,17 +1,31 @@
-# -*- encoding: utf-8 -*-
-"""
-Copyright (c) 2019 - present AppSeed.us
-"""
-
 from flask_login import UserMixin
 
 from sqlalchemy.orm import relationship
 from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
+from datetime import datetime
 
 from apps import db, login_manager
-
+from flask_sqlalchemy import SQLAlchemy
 from apps.authentication.util import hash_pass
+db = SQLAlchemy()
+class AuctionItem(db.Model):
 
+    __tablename__ = 'auction_items'
+
+    id = db.Column(db.Integer, primary_key=True)
+    image = db.Column(db.String(512), nullable=False)
+    title = db.Column(db.Text, nullable=False)
+    url = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(100), nullable=False)
+    ends = db.Column(db.DateTime, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    current = db.Column(db.Float, nullable=False)
+    open = db.Column(db.Float, nullable=False)
+    reserve = db.Column(db.String(100), nullable=False)
+    bids = db.Column(db.Integer, nullable=False)
+    business = db.Column(db.String(255), nullable=False)
+    updated = db.Column(db.Date, nullable=False)
+    
 class Users(db.Model, UserMixin):
 
     __tablename__ = 'users'

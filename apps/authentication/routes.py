@@ -18,8 +18,18 @@ from apps.authentication.models import Users
 
 from apps.authentication.util import verify_pass
 
+
+from apps.authentication.models import AuctionItem  # Import the model, adjust the import path if needed
+@blueprint.route('/show_auction_items')
+# @login_required
+def show_auction_items():
+    print("\n\n\n\n\n\ntest items\n\n\n\n\n\n")
+    auction_items = AuctionItem.query.limit(100).all()
+    return render_template('home/auction_items.html', auction_items=auction_items, segment='show_auction_items')
+
 @blueprint.route('/')
 def route_default():
+    print("GG")
     return redirect(url_for('authentication_blueprint.login'))
 
 # Login & Registration
@@ -116,6 +126,8 @@ def register():
 @blueprint.route('/logout')
 def logout():
     logout_user()
+    print("\n\n\n\n\n\ntestlogouta items\n\n\n\n\n\n")
+
     return redirect(url_for('authentication_blueprint.login')) 
 
 # Errors

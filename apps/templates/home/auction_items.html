@@ -1,0 +1,317 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Auctions {% endblock %} 
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}
+<style>
+   
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    position: relative;
+    margin: 7% auto;
+    padding: 20px;
+    width: 60%;
+    background-color: #2C394B;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+.hidden-row {
+    display: none;
+
+
+}
+/* Modal Content (Image) */
+.modal-content img {
+    margin: auto;
+    display: block;
+    max-width: 90%;
+}
+/* Caption of Modal Image */
+#modal-caption {
+    margin: auto;
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 15px;
+}
+
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- [ Main Content ] start -->
+    <section class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class="page-header">
+                        <div class="page-block">
+                            <div class="row align-items-center">
+                                <div class="col-md-12">
+                                    <div class="page-header-title">
+                                    </div>
+                                    <ul class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                        <li class="breadcrumb-item"><a href="javascript:">Auctions</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <!-- [ Hover-table ] start -->
+                                <div class="col-xl-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>All Auctions</h5>
+                                        </div>
+                                        <div class="card-block table-border-style">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Image</th>
+                                                            <th>Title</th>
+                                                            <th>Status</th>
+                                                            <th>Ends</th>
+                                                            <th>Description</th>
+                                                            <th>Current Price</th>
+                                                            <th>Reserve</th>
+                                                            <th>Bids</th>
+                                                            <th>Business</th>
+                                                            <th>Last Updated</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for item in auction_items %}
+                                                        <tr class="hidden-row">
+                                                            <td>{{ item.id }}</td>
+                                                            <td><img src="{{ item.image }}" alt="{{ item.title }}" width="70" onclick="showImage(this)"></td>
+                                                            <td onclick="toggleTitle(this, event)" data-fulltitle="{{ item.title }}" data-truncatedtitle="{{ item.title[:20] }}..." class="wrap-text">
+                                                                <a href="{{ item.url }}" target="_blank" id="title-link">{{ item.title[:20] }}...</a>
+                                                            </td>
+                                                                                                                     
+                                                            <td><span class="status-label" style="{% if item.status == 'live' %}color: green; border: 2px solid green;{% else %}color: red; border: 2px solid red;{% endif %} border-radius:5px; padding:5px;">
+                                                                {{ item.status }}
+                                                            </span></td>
+                                                            <td>{{ item.ends.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                                            
+                                                            <!--
+                                                            <td onclick="toggleDescription(this)" data-fulltext="{{ item.description }}" data-truncatedtext="{{ item.description[:50] }}..." class="wrap-text">
+                                                                {{ item.description[:50] }}...
+                                                            </td>
+                                                            -->                                                            
+                                                            <td class="description-cell" data-description="{{ item.description }}">
+                                                                {{ item.description[:50] }}...
+                                                            </td>
+
+                                                            <td>{{ item.current }} GBP</td>
+                                                            <td><span class="reserve-label" style="{% if item.reserve == 'not yet met' %}color: red;{% else %}color: green;{% endif %} border-radius:5px; padding:5px;">
+                                                                {{ item.reserve }}
+                                                            </span></td>
+                                                            <td>{{ item.bids }}</td>
+                                                            <td>{{ item.business }}</td>
+                                                            <td>{{ item.updated }}</td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- [ Hover-table ] end -->
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                        <button style="display: block; margin: auto; width:50%" id="loadMoreButton" onclick="loadMoreRows()" type="button" class="btn btn-primary" title="Load More Auctions" data-toggle="tooltip">Load More</button>   
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    <!-- [ Main Content ] end -->
+    <div id="descriptionModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p id="modal-text"></p>
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeImageModal()">&times;</span>
+            <img id="modal-image" class="modal-content">
+            <div id="modal-caption"></div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+
+    let currentRow = 0;
+    const rowsToShow = 10;  // Number of rows to show initially and per "Load More" click
+    
+    function loadMoreRows() {
+        const rows = document.querySelectorAll('.hidden-row');
+        let newCurrentRow = currentRow + rowsToShow;
+    
+        // Unhide rows from currentRow to newCurrentRow
+        for (let i = currentRow; i < newCurrentRow && i < rows.length; i++) {
+            rows[i].style.display = 'table-row';
+        }
+        currentRow = newCurrentRow;
+    
+        // Hide "Load More" button if all rows are visible
+        if (currentRow >= rows.length) {
+            document.getElementById('loadMoreButton').style.display = 'none';
+        }
+    }
+    
+    // Call the function initially to show the first set of rows
+    loadMoreRows();
+    
+
+// JavaScript to toggle full title and handle link
+function toggleTitle(element, event) {
+    var fullTitle = element.getAttribute("data-fulltitle");
+    var truncatedTitle = element.getAttribute("data-truncatedtitle");
+    var linkElement = element.querySelector('a');
+    var currentTitle = linkElement.textContent;
+    
+    // Prevent the link from being activated when the title is truncated
+    if (currentTitle === truncatedTitle && event.target.tagName === 'A') {
+        event.preventDefault();
+    }
+
+    if (currentTitle === truncatedTitle) {
+        linkElement.textContent = fullTitle;
+    } else {
+        linkElement.textContent = truncatedTitle;
+    }
+    element.classList.toggle("wrap-text");
+}
+
+
+function toggleDescription(element) {
+    var fullText = element.getAttribute("data-fulltext");
+    var truncatedText = element.getAttribute("data-truncatedtext");
+    if (element.innerHTML === truncatedText) {
+        element.innerHTML = fullText;
+    } else {
+        element.innerHTML = truncatedText;
+    }
+    element.classList.toggle("wrap-text");
+}
+
+// This assumes that your DOM is fully loaded; otherwise, wrap this in a DOMContentLoaded event.
+var cells = document.querySelectorAll('.description-cell');
+cells.forEach(function(cell) {
+    cell.addEventListener('click', function(event) {
+        var fullDescription = event.target.getAttribute('data-description');
+        showDescription(fullDescription);
+    });
+});
+
+function showImage(element) {
+    var modal = document.getElementById("imageModal");
+    var modalImage = document.getElementById("modal-image");
+    var captionText = document.getElementById("modal-caption");
+    updateModalBackground("imageModal");
+    modal.style.display = "block";
+    modalImage.src = element.src;
+    captionText.innerHTML = element.alt;
+}
+
+function closeImageModal() {
+    var modal = document.getElementById("imageModal");
+    modal.style.display = "none";
+}
+
+// Function to show full description in a modal
+function showDescription(fullDescription) {
+    var modal = document.getElementById("descriptionModal");
+    document.getElementById("modal-text").innerHTML = fullDescription;
+    updateModalBackground("descriptionModal");
+    modal.style.display = "block";
+}
+
+// Function to close the modal
+function closeModal() {
+    var modal = document.getElementById("descriptionModal");
+    modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    var descriptionModal = document.getElementById("descriptionModal");
+    var imageModal = document.getElementById("imageModal");
+
+    if (event.target === descriptionModal || event.target === imageModal) {
+        descriptionModal.style.display = "none";
+        imageModal.style.display = "none";
+    }
+};
+
+
+function updateModalBackground(modalId) {
+    var h5Element = document.querySelector('h5');
+    var modalContent = document.getElementById(modalId).querySelector(".modal-content");
+
+    var textColor = window.getComputedStyle(h5Element, null).getPropertyValue("color");
+
+    console.log(textColor);
+
+    if (textColor === 'rgb(255, 255, 255)') {
+        modalContent.style.backgroundColor = '#2C394B';
+    } else {
+        modalContent.style.backgroundColor = 'white';
+    }
+}
+
+
+</script>
+{% endblock javascripts %}
