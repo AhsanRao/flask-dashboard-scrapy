@@ -61,13 +61,12 @@ class Config(object):
             print('> Fallback to SQLite ')    
 
     if USE_SQLITE:
-
         # This will create a file in <app> FOLDER
         SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'db.sqlite3')
         
     else:
         SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:@localhost:3306/bidspotter'
-    print("SQLAlchemy Database URI: ", SQLALCHEMY_DATABASE_URI)
+    SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:@localhost:3306/bidspotter'
     
 class ProductionConfig(Config):
     DEBUG = False

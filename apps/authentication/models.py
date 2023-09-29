@@ -7,6 +7,7 @@ from datetime import datetime
 from apps import db, login_manager
 from flask_sqlalchemy import SQLAlchemy
 from apps.authentication.util import hash_pass
+
 db = SQLAlchemy()
 class AuctionItem(db.Model):
 
@@ -26,6 +27,23 @@ class AuctionItem(db.Model):
     business = db.Column(db.String(255), nullable=False)
     updated = db.Column(db.Date, nullable=False)
     
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'image': self.image,
+            'title': self.title,
+            'url': self.url,
+            'status': self.status,
+            'ends': self.ends,
+            'description': self.description,
+            'current': self.current,
+            'open': self.open,
+            'reserve': self.reserve,
+            'bids': self.bids,
+            'business': self.business,
+            'updated': self.updated
+        }
+    
 class Users(db.Model, UserMixin):
 
     __tablename__ = 'users'
@@ -34,6 +52,10 @@ class Users(db.Model, UserMixin):
     username      = db.Column(db.String(64), unique=True)
     email         = db.Column(db.String(64), unique=True)
     password      = db.Column(db.LargeBinary)
+    first_name    = db.Column(db.String)
+    last_name     = db.Column(db.String)
+    address       = db.Column(db.Text)
+    about         = db.Column(db.Text)
 
     oauth_github  = db.Column(db.String(100), nullable=True)
 

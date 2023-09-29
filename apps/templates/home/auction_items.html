@@ -66,7 +66,45 @@
     padding: 15px 0;
     font-size: 15px;
 }
+#clearFilters {
+    background: none;
+    border: none;
+    color: red;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: red;
+    cursor: pointer;
+    display: inline-block;  /* To allow margins */
+    margin: 5px;
+}
 
+#activeFilters .filter-label {
+    background-color: #f7f7f7;
+    padding: 10px 20px;
+    padding-right: 40px;
+    margin: 5px;
+    border-radius: 15px;  /* Rounded shape */
+    display: inline-block;
+    position: relative;
+}
+
+.filter-label a {
+    margin-left: 10px;
+    color: black;
+    text-decoration: none;
+    position: absolute;  /* Positioning cross sign on the right */
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.filters-container {
+    display: flex;
+    align-items:
+}
+
+.flex-grow {
+    flex: 1;
+}
 </style>
 {% endblock stylesheets %}
 
@@ -104,6 +142,67 @@
                                             <h5>All Auctions</h5>
                                         </div>
                                         <div class="card-block table-border-style">
+                                            <!-- Start of form -->
+                                            <form id="filterForm" method="post" action="{{ url_for('authentication_blueprint.filterauction') }}">
+
+                                                <div class="row mb-4 p-3">
+                                                    <div class="col-lg-2 col-8 mb-2 mb-lg-0">
+                                                        <select class="form-control" name="Business" id="Business">
+                                                            <option value="">Select business</option>
+                                                            {% for business in businesses %}
+                                                                <option value="{{ business.business }}" {% if business.business == request.form['Business'] %}selected{% endif %}>{{ business.business }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-lg-2 col-8 mb-2 mb-lg-0">
+                                                        <select class="form-control" name="reserve" id="reserve">
+                                                            <option value="">Select reserve</option>
+                                                            {% for reserve in reserves %}
+                                                                <option value="{{ reserve }}" {% if reserve == request.form['reserve'] %}selected{% endif %}>{{ reserve }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-lg-2 col-8 mb-2 mb-lg-0">
+                                                        <select class="form-control" name="bids" id="bids">
+                                                            <option value="">Select bids</option>
+                                                            {% for bid in bids %}
+                                                                <option value="{{ bid }}" {% if bid == request.form['bids'] %}selected{% endif %}>{{ bid }}</option>
+                                                            {% endfor %}
+
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-lg-2 col-8 mb-2 mb-lg-0">
+                                                        <select class="form-control" name="auctionStatus" id="auctionStatus">
+                                                            <option value="">Select auction status</option>
+                                                            {% for status in auction_statuses %}
+                                                                <option value="{{ status }}" {% if status == request.form['auctionStatus'] %}selected{% endif %}>{{ status }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                        
+                                                    </div>
+                                                    <div class="col-lg-2 col-8 mb-2 mb-lg-0">
+                                                        <button type="submit" class="form-control btn-success" id="filtrer">Search</button>
+                                                    </div>
+                                                    <form id="filterForm" method="post" action="{{ url_for('authentication_blueprint.filterauction') }}">
+                                                        <div class="col-lg-2 col-8 mb-2 mb-lg-0">
+                                                            <button class="form-control btn-info" type="submit" formaction="{{ url_for('authentication_blueprint.exportauction') }}" id="export">Export</button>
+                                                        </div>                      
+                                                    </form>
+                                                </div>
+                                                <hr>
+                                                <div class="filters-container" style="margin-bottom:20px;">
+                                                    <div id="activeFilters" class="flex-grow">
+                                                        <!-- Active filters will be displayed here -->
+                                                    </div>                                                
+                                                    <div class="col-lg-2 col-8 mb-2 mb-lg-0">
+                                                        <button type="button" class="form-control btn-warning" id="clearFilters">Clear Filters</button>
+                                                    </div>
+                                                </div>
+                                                    
+                                            </form>
+                                            <!-- End of form -->
+
+                                            
                                             <div class="table-responsive">
                                                 <table class="table table-hover">
                                                     <thead>
@@ -303,8 +402,6 @@ function updateModalBackground(modalId) {
 
     var textColor = window.getComputedStyle(h5Element, null).getPropertyValue("color");
 
-    console.log(textColor);
-
     if (textColor === 'rgb(255, 255, 255)') {
         modalContent.style.backgroundColor = '#2C394B';
     } else {
@@ -312,6 +409,100 @@ function updateModalBackground(modalId) {
     }
 }
 
+// Get the dropdown elements only once
+const dropdowns = {
+    Business: document.getElementById('Business'),
+    Reserve: document.getElementById('reserve'),
+    Bids: document.getElementById('bids'),
+    Status: document.getElementById('auctionStatus')
+};
+
+// Function to reset all dropdowns
+function resetDropdowns() {
+    for (const key in dropdowns) {
+        dropdowns[key].selectedIndex = 0;
+    }
+}
+
+document.getElementById('clearFilters').addEventListener('click', function() {
+    resetDropdowns();
+    displayActiveFilters();
+    checkFilters();
+    document.getElementById('filterForm').submit();
+});
+
+// Function to check if any filters are selected
+function checkFilters() {
+    for (const key in dropdowns) {
+        if (dropdowns[key].selectedIndex > 0) {
+            document.getElementById('clearFilters').style.display = 'block';
+            return;
+        }
+    }
+    document.getElementById('clearFilters').style.display = 'none';
+}
+
+// Check filters on page load
+checkFilters();
+
+// Add event listeners to dropdowns
+for (const key in dropdowns) {
+    dropdowns[key].addEventListener('change', function() {
+        checkFilters();
+        displayActiveFilters();
+    });
+}
+
+function displayActiveFilters() {
+    const activeFiltersDiv = document.getElementById('activeFilters');
+    activeFiltersDiv.innerHTML = ''; // Clear current active filters
+
+    // Helper function to create filter labels
+    function createFilterLabel(name, value) {
+        const span = document.createElement('span');
+        span.className = 'filter-label';
+        span.textContent = `${name}: ${value} `;
+        const removeIcon = document.createElement('a');
+        removeIcon.href = '#';
+        removeIcon.textContent = 'X';
+        removeIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            dropdowns[name].selectedIndex = 0;
+            checkFilters();
+            displayActiveFilters();
+            document.getElementById('filterForm').submit();
+        });
+        span.appendChild(removeIcon);
+        return span;
+    }
+
+    // Display each active filter
+    for (const key in dropdowns) {
+        if (dropdowns[key].selectedIndex > 0) {
+            activeFiltersDiv.appendChild(createFilterLabel(key, dropdowns[key].options[dropdowns[key].selectedIndex].text));
+        }
+    }
+    updateFilterLabelBackground();
+}
+
+// Call the function initially
+displayActiveFilters();
+
+function updateFilterLabelBackground() {
+    var h5Element = document.querySelector('h5');
+    var filterLabels = document.querySelectorAll('.filter-label'); // target filter labels using their class
+
+    var textColor = window.getComputedStyle(h5Element, null).getPropertyValue("color");
+
+    filterLabels.forEach(function(label) {
+        if (textColor === 'rgb(255, 255, 255)') {
+            label.style.backgroundColor = '#082032';
+        } else {
+            label.style.backgroundColor = '#f7f7f7';
+        }
+    });
+}
+updateFilterLabelBackground();
 
 </script>
 {% endblock javascripts %}

@@ -10,26 +10,148 @@ from flask_login import (
     logout_user
 )
 from flask_dance.contrib.github import github
-
 from apps import db, login_manager
 from apps.authentication import blueprint
 from apps.authentication.forms import LoginForm, CreateAccountForm
 from apps.authentication.models import Users
-
 from apps.authentication.util import verify_pass
+from apps.authentication.models import AuctionItem
+import pandas as pd
+from io import BytesIO
+from flask import Response
 
-
-from apps.authentication.models import AuctionItem  # Import the model, adjust the import path if needed
 @blueprint.route('/show_auction_items')
 # @login_required
 def show_auction_items():
-    print("\n\n\n\n\n\ntest items\n\n\n\n\n\n")
     auction_items = AuctionItem.query.limit(100).all()
     return render_template('home/auction_items.html', auction_items=auction_items, segment='show_auction_items')
 
+
+@blueprint.route('/filterauction', methods=['GET', 'POST'])
+# @login_required
+def filterauction():
+    # Fetch unique values for filters
+    businesses = db.session.query(AuctionItem.business).distinct().all()
+    bids = ["with", "without"]  # Manually defined
+    reserves = [reserve[0] for reserve in db.session.query(AuctionItem.reserve).distinct().all()]
+    auction_statuses = [status[0] for status in db.session.query(AuctionItem.status).distinct().all()]
+    
+    if request.method == 'POST':
+        # Get filter criteria from form
+        business_filter = request.form.get('Business')
+        reserve_filter = request.form.get('reserve')
+        bids_filter = request.form.get('bids')
+        status_filter = request.form.get('auctionStatus')
+        
+        # Create a query based on filter criteria
+        query = AuctionItem.query
+        if business_filter:
+            query = query.filter(AuctionItem.business == business_filter)
+        if reserve_filter:
+            query = query.filter(AuctionItem.reserve == reserve_filter)
+        if bids_filter:
+            if bids_filter == 'with':
+                query = query.filter(AuctionItem.bids > 0)
+            else:
+                query = query.filter(AuctionItem.bids == 0)
+        if status_filter:
+            query = query.filter(AuctionItem.status == status_filter)
+        
+        # Execute the query
+        auction_items = query.limit(100).all()
+    else:
+        # Default behavior when the page is loaded
+        auction_items = AuctionItem.query.limit(100).all()
+
+    # return render_template('home/auction_items.html', auction_items=auction_items, segment='filterauction')
+    return render_template(
+        'home/auction_items.html', 
+        auction_items=auction_items,
+        businesses=businesses,
+        reserves=reserves,
+        bids=bids,
+        auction_statuses=auction_statuses,
+        segment='filterauction'
+    )
+
+@blueprint.route('/exportauction', methods=['POST'])
+# @login_required
+def exportauction():
+    # Get filter criteria from form
+    business_filter = request.form.get('Business')
+    reserve_filter = request.form.get('reserve')
+    bids_filter = request.form.get('bids')
+    status_filter = request.form.get('auctionStatus')
+    
+    # Create a query based on filter criteria
+    query = AuctionItem.query
+    if business_filter:
+        query = query.filter(AuctionItem.business == business_filter)
+    if reserve_filter:
+        query = query.filter(AuctionItem.reserve == reserve_filter)
+    if bids_filter:
+        if bids_filter == 'with':
+            query = query.filter(AuctionItem.bids > 0)
+        else:
+            query = query.filter(AuctionItem.bids == 0)
+    if status_filter:
+        query = query.filter(AuctionItem.status == status_filter)
+    
+    # Execute the query
+    auction_items = query.all()
+
+    records = [item.to_dict() for item in auction_items]
+
+    # Return the data as an Excel file
+    if not records:
+        return "No data to export", 400
+    df = pd.DataFrame(records)
+    output = BytesIO()  # Create an in-memory bytes buffer
+    df.to_excel(output, index=False, engine='openpyxl')  # Write the DataFrame to the buffer
+    output.seek(0)  # Go back to the start of the buffer
+
+    response = Response(output.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response.headers["Content-Disposition"] = "attachment; filename=auction_data.xlsx"
+    
+    return response
+
+@blueprint.route('/update_profile', methods=['POST'])
+# @login_required
+def update_profile():
+    # Get data from form
+    first_name = request.form.get('fn')
+    last_name = request.form.get('ln')
+    address = request.form.get('add')
+    about_info = request.form.get('abt')
+
+    # Update user in the database
+    user = User.query.get(current_user.id)
+    if user:
+        user.first_name = first_name
+        user.last_name = last_name
+        user.address = address
+        user.about_info = about_info
+        db.session.commit()
+
+    return redirect(url_for('profile_page_route')) # Redirect to the profile page after updating
+
+@blueprint.route('/profile', methods=['GET', 'POST'])
+# @login_required
+def profile():
+    if request.method == 'POST':
+        # Handle profile updates here
+        current_user.first_name = request.form.get('fn')
+        current_user.last_name = request.form.get('ln')
+        current_user.address = request.form.get('add')
+        current_user.about = request.form.get('abt')
+        db.session.commit()
+        # Add a flash message or some notification that the profile was updated
+        return redirect(url_for('authentication_blueprint.profile'))
+
+    return render_template('home/profile.html', current_user=current_user)
+
 @blueprint.route('/')
 def route_default():
-    print("GG")
     return redirect(url_for('authentication_blueprint.login'))
 
 # Login & Registration
@@ -126,8 +248,6 @@ def register():
 @blueprint.route('/logout')
 def logout():
     logout_user()
-    print("\n\n\n\n\n\ntestlogouta items\n\n\n\n\n\n")
-
     return redirect(url_for('authentication_blueprint.login')) 
 
 # Errors

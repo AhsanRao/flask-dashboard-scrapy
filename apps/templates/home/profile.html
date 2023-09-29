@@ -23,6 +23,7 @@
                                             <h5>Edit Info</h5>
                                         </div>
                                         <div class="card-block">
+                                            <form action="{{ url_for('authentication_blueprint.profile') }}" method="post">
                                             <div class="row">
                                                 <div class="col-sm-6 mb-4">
                                                     <div class="form-group">
@@ -49,26 +50,26 @@
                                                 <div class="col-sm-6 mb-4">
                                                     <div class="form-group">
                                                         <label for="fn">First Name</label>
-                                                        <input type="email" class="form-control" id="fn" aria-describedby="emailHelp" placeholder="Your name">
+                                                        <input type="text" class="form-control" id="fn" aria-describedby="emailHelp" name="fn" value="{{ current_user.first_name if current_user.first_name else '' }}" placeholder="Your name">
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6 mb-4">
                                                     <div class="form-group">
                                                         <label for="ln">Last Name</label>
-                                                        <input type="email" class="form-control" id="ln" aria-describedby="emailHelp" placeholder="Your last name">
+                                                        <input type="text" class="form-control" id="ln" aria-describedby="emailHelp" name="ln" value="{{ current_user.last_name if current_user.last_name else '' }}" placeholder="Your last name">
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-12 mb-4">
                                                     <div class="form-group">
                                                         <label for="add">Address</label>
-                                                        <input type="email" class="form-control" id="add" aria-describedby="emailHelp" placeholder="Full address here">
+                                                        <input type="text" class="form-control" id="add" aria-describedby="emailHelp" name="add" value="{{ current_user.address if current_user.address else '' }}" placeholder="Full address here">
                                                         
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-12 mb-4">
                                                     <div class="form-group">
                                                         <label for="abt">About Info</label>
-                                                        <textarea type="email" class="form-control" id="abt" aria-describedby="emailHelp" placeholder="Bio"></textarea>
+                                                        <textarea class="form-control" id="abt" aria-describedby="emailHelp" placeholder="Bio">{{ current_user.about if current_user.about else '' }}</textarea>
                                                         <small id="abf" class="form-text text-muted">We'll show this on your profile.</small>
                                                     </div>
                                                 </div>
@@ -78,8 +79,8 @@
                                                         <button type="submit" class="btn btn-primary">Apply Changes</button>
                                                     </div>
                                                 </div>                                                
-                                                
                                             </div>
+                                        </form> 
                                         </div>
                                     </div>
                                 </div>

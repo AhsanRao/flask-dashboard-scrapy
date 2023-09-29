@@ -32,6 +32,9 @@ CREATE TABLE `users` (
   `email` varchar(0) DEFAULT NULL,
   `password` varchar(0) DEFAULT NULL,
   `oauth_github` varchar(0) DEFAULT NULL
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
