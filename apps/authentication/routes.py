@@ -1,8 +1,3 @@
-# -*- encoding: utf-8 -*-
-"""
-Copyright (c) 2019 - present AppSeed.us
-"""
-
 from flask import render_template, redirect, request, url_for
 from flask_login import (
     current_user,
@@ -27,6 +22,26 @@ def show_auction_items():
     return render_template('home/auction_items.html', auction_items=auction_items, segment='show_auction_items')
 
 
+from flask import jsonify
+
+@blueprint.route('/live_search', methods=['POST'])
+def live_search():
+    search_term = request.json.get('search_term', '').strip()
+
+    # Filter the data based on the search term
+    if search_term:
+        auction_items = AuctionItem.query.filter(AuctionItem.title.ilike(f"%{search_term}%")).limit(100).all()
+    else:
+        auction_items = AuctionItem.query.limit(100).all()
+
+    # Convert the results to a format that can be sent as JSON
+    items = [{"id": item.id, "title": item.title} for item in auction_items]  # Add other fields as needed
+
+    return jsonify(auction_items=items)
+
+
+from sqlalchemy import or_
+
 @blueprint.route('/filterauction', methods=['GET', 'POST'])
 # @login_required
 def filterauction():
@@ -35,6 +50,13 @@ def filterauction():
     bids = ["with", "without"]  # Manually defined
     reserves = [reserve[0] for reserve in db.session.query(AuctionItem.reserve).distinct().all()]
     auction_statuses = [status[0] for status in db.session.query(AuctionItem.status).distinct().all()]
+    
+    # Extract sort criteria from the request
+    sort_column = request.args.get('sort_column', default='id')  # default to 'id' column if not provided
+    sort_direction = request.args.get('sort_direction', default='asc')  # default to ascending if not provided
+    
+    # Extract search term from the request
+    search_term = request.form.get('search_term', '').strip()
     
     if request.method == 'POST':
         # Get filter criteria from form
@@ -54,14 +76,50 @@ def filterauction():
                 query = query.filter(AuctionItem.bids > 0)
             else:
                 query = query.filter(AuctionItem.bids == 0)
+                
         if status_filter:
             query = query.filter(AuctionItem.status == status_filter)
-        
+            
+        # Add sorting to the query
+        if sort_direction == 'asc':
+            query = query.order_by(getattr(AuctionItem, sort_column).asc())
+        else:
+            query = query.order_by(getattr(AuctionItem, sort_column).desc())
+            
+        # Add search term to the query
+        # if search_term:
+        #     query = query.filter(AuctionItem.title.ilike(f"%{search_term}%"))
+        # For every field search term
+        if search_term:
+            search_filter = or_(
+                AuctionItem.title.ilike(f"%{search_term}%"),
+                AuctionItem.description.ilike(f"%{search_term}%"),
+                AuctionItem.business.ilike(f"%{search_term}%"),
+                AuctionItem.status.ilike(f"%{search_term}%"),
+                # Add other fields as needed
+            )
+            query = query.filter(search_filter)
+                
         # Execute the query
         auction_items = query.limit(100).all()
     else:
         # Default behavior when the page is loaded
-        auction_items = AuctionItem.query.limit(100).all()
+        # if search_term:
+        #     auction_items = AuctionItem.query.filter(AuctionItem.title.ilike(f"%{search_term}%")).order_by(getattr(AuctionItem, sort_column).send(sort_direction)()).limit(100).all()
+        # for every field
+        if search_term:
+            search_filter = or_(
+                AuctionItem.title.ilike(f"%{search_term}%"),
+                AuctionItem.description.ilike(f"%{search_term}%"),
+                AuctionItem.business.ilike(f"%{search_term}%"),
+                AuctionItem.status.ilike(f"%{search_term}%"),
+                # Add other fields as needed
+            )
+            auction_items = AuctionItem.query.filter(search_filter).order_by(getattr(AuctionItem, sort_column).send(sort_direction)()).limit(100).all()
+
+        # auction_items = AuctionItem.query.limit(100).all()
+        sorting_method = getattr(getattr(AuctionItem, sort_column), sort_direction)
+        auction_items = AuctionItem.query.order_by(sorting_method()).limit(100).all()
 
     # return render_template('home/auction_items.html', auction_items=auction_items, segment='filterauction')
     return render_template(

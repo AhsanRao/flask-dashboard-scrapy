@@ -105,6 +105,21 @@
 .flex-grow {
     flex: 1;
 }
+
+.sort-arrows {
+    cursor: pointer;
+}
+
+.description-cell {
+    cursor: pointer;
+}
+
+.asc {
+    cursor: pointer;
+}
+.desc {
+    cursor: pointer;
+}
 </style>
 {% endblock stylesheets %}
 
@@ -140,6 +155,28 @@
                                     <div class="card">
                                         <div class="card-header">
                                             <h5>All Auctions</h5>
+                                           
+                                            <form style="margin-top:20px;" id="filterForm" method="post" action="{{ url_for('authentication_blueprint.filterauction') }}">
+                                                <!-- ... other form fields ... -->
+                                            
+                                                <div class="custom-search">
+                                                    <div class="input-group">
+                                                        <input type="text" id="custom-m-search" name="search_term" class="form-control" placeholder="Search . . ." value="{{ request.form['search_term'] }}">
+                                                        <a href="javascript:" class="input-group-append custom-search-close" onclick="clearSearch()">
+                                                            <i class="feather icon-x input-group-text"></i>
+                                                        </a>
+                                                        <span class="input-group-append custom-search-btn btn btn-primary">
+                                                            <button type="submit" style="border: none; background: none; padding: 0; outline: none;">
+                                                                <i class="feather icon-search input-group-text"></i>
+                                                            </button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            
+                                                <!-- ... other form fields ... -->
+                                            </form>
+                                            
+                                        
                                         </div>
                                         <div class="card-block table-border-style">
                                             <!-- Start of form -->
@@ -207,24 +244,87 @@
                                                 <table class="table table-hover">
                                                     <thead>
                                                         <tr>
-                                                            <th>#</th>
-                                                            <th>Image</th>
-                                                            <th>Title</th>
-                                                            <th>Status</th>
-                                                            <th>Ends</th>
-                                                            <th>Description</th>
-                                                            <th>Current Price</th>
-                                                            <th>Reserve</th>
-                                                            <th>Bids</th>
-                                                            <th>Business</th>
-                                                            <th>Last Updated</th>
+                                                            <th>
+                                                                #
+                                                                <span class="sort-arrows" data-column="id">
+                                                                    <span class="asc" onclick="sortTable('id', 'asc')" title="Sort Ascending">▲</span>
+                                                                    <span class="desc" onclick="sortTable('id', 'desc')" title="Sort Descending">▼</span>
+                                                                </span>
+                                                            </th>
+                                                                <th>Image</th>
+                                                            <th>
+                                                                Title
+                                                                <span class="sort-arrows" data-column="title">
+                                                                    <span class="asc" onclick="sortTable('title', 'asc')" title="Sort Ascending">▲</span>
+                                                                    <span class="desc" onclick="sortTable('title', 'desc')" title="Sort Descending">▼</span>
+                                                                </span>
+                                                            </th>
+                                                            <th>
+                                                                Status
+                                                                <span class="sort-arrows" data-column="status">
+                                                                    <span class="asc" onclick="sortTable('status', 'asc')" title="Sort Ascending">▲</span>
+                                                                    <span class="desc" onclick="sortTable('status', 'desc')" title="Sort Descending">▼</span>
+                                                                </span>
+                                                            </th>
+                                                            <th>
+                                                                Ends
+                                                                <span class="sort-arrows" data-column="ends">
+                                                                    <span class="asc" onclick="sortTable('ends', 'asc')" title="Sort Ascending">▲</span>
+                                                                    <span class="desc" onclick="sortTable('ends', 'desc')" title="Sort Descending">▼</span>
+                                                                </span>
+                                                            </th>
+                                                            <th>
+                                                                Description
+                                                                <span class="sort-arrows" data-column="description">
+                                                                    <span class="asc" onclick="sortTable('description', 'asc')" title="Sort Ascending">▲</span>
+                                                                    <span class="desc" onclick="sortTable('description', 'desc')" title="Sort Descending">▼</span>
+                                                                </span>
+                                                            </th>
+                                                            <th>
+                                                                Current Price
+                                                                <span class="sort-arrows" data-column="current">
+                                                                    <span class="asc" onclick="sortTable('current', 'asc')" title="Sort Ascending">▲</span>
+                                                                    <span class="desc" onclick="sortTable('current', 'desc')" title="Sort Descending" >▼</span>
+                                                                </span>
+                                                            </th>
+                                                            <th>
+                                                                Reserve
+                                                                <span class="sort-arrows" data-column="reserve">
+                                                                    <span class="asc" onclick="sortTable('reserve', 'asc')" title="Sort Ascending">▲</span>
+                                                                    <span class="desc" onclick="sortTable('reserve', 'desc')" title="Sort Descending">▼</span>
+                                                                </span>
+                                                            </th>
+                                                            <th>
+                                                                Bids
+                                                                <span class="sort-arrows" data-column="bids">
+                                                                    <span class="asc" onclick="sortTable('bids', 'asc')" title="Sort Ascending">▲</span>
+                                                                    <span class="desc" onclick="sortTable('bids', 'desc')" title="Sort Descending">▼</span>
+                                                                </span>
+                                                            </th>
+                                                            <th>
+                                                                Business
+                                                                <span class="sort-arrows" data-column="business">
+                                                                    <span class="asc" onclick="sortTable('business', 'asc')" title="Sort Ascending">▲</span>
+                                                                    <span class="desc" onclick="sortTable('business', 'desc')" title="Sort Descending">▼</span>
+                                                                </span>
+                                                            </th>
+                                                            <th>
+                                                                Last Updated
+                                                                <span class="sort-arrows" data-column="updated">
+                                                                    <span class="asc" onclick="sortTable('updated', 'asc')" title="Sort Ascending">▲</span>
+                                                                    <span class="desc" onclick="sortTable('updated', 'desc')" title="Sort Descending">▼</span>
+                                                                </span>
+                                                            </th>
                                                         </tr>
+                                                        
                                                     </thead>
                                                     <tbody>
                                                         {% for item in auction_items %}
                                                         <tr class="hidden-row">
                                                             <td>{{ item.id }}</td>
-                                                            <td><img src="{{ item.image }}" alt="{{ item.title }}" width="70" onclick="showImage(this)"></td>
+                                                            
+                                                            <td><img src="{{ item.image }}" alt="{{ item.title }}" width="70" onclick="showImage(this)" style="cursor:zoom-in;"></td>
+                                                            
                                                             <td onclick="toggleTitle(this, event)" data-fulltitle="{{ item.title }}" data-truncatedtitle="{{ item.title[:20] }}..." class="wrap-text">
                                                                 <a href="{{ item.url }}" target="_blank" id="title-link">{{ item.title[:20] }}...</a>
                                                             </td>
@@ -240,7 +340,7 @@
                                                             </td>
                                                             -->                                                            
                                                             <td class="description-cell" data-description="{{ item.description }}">
-                                                                {{ item.description[:50] }}...
+                                                                {{ item.description[:35] }}...
                                                             </td>
 
                                                             <td>{{ item.current }} GBP</td>
@@ -290,7 +390,6 @@
 
 {% block javascripts %}
 <script>
-
     let currentRow = 0;
     const rowsToShow = 10;  // Number of rows to show initially and per "Load More" click
     
@@ -503,6 +602,50 @@ function updateFilterLabelBackground() {
     });
 }
 updateFilterLabelBackground();
+
+function sortTable(column, direction) {
+    // This function will send a request to the Flask backend
+
+    const url = new URL(window.location);
+    url.searchParams.set('sort_column', column);
+    url.searchParams.set('sort_direction', direction);
+    window.location.href = url.toString();
+}
+/*
+document.getElementById('liveSearchBox').addEventListener('keyup', function() {
+    // Fetch data on every keyup event in the search box
+    fetchFilteredData(this.value);
+});
+
+function fetchFilteredData(searchTerm) {
+    // Send AJAX request to the Flask backend
+    fetch("/live_search", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            'search_term': searchTerm
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update the table with new data
+        updateTable(data.auction_items);
+    });
+}
+
+function updateTable(items) {
+    // This function will update your table based on the fetched data
+    // Implementation will vary based on your table structure
+    // As an example, we'll just print the data:
+    console.log(items);
+}
+*/
+
+function clearSearch() {
+    window.location.href = "{{ url_for('authentication_blueprint.filterauction') }}";
+}
 
 </script>
 {% endblock javascripts %}
