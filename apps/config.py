@@ -61,7 +61,7 @@ class Config(object):
         
     else:
         SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:@localhost:3306/bidspotter'
-    SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:@localhost/bidspotter'
+    SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:1234@localhost/bidspotter'
     
 class ProductionConfig(Config):
     DEBUG = False
