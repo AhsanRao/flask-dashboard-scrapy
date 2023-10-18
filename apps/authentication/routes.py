@@ -44,7 +44,7 @@ from sqlalchemy import or_
 
 @blueprint.route('/auctions', methods=['GET', 'POST'])
 # @login_required
-def filterauction():
+def auctions():
     # Fetch unique values for filters
     businesses = db.session.query(AuctionItem.business).distinct().all()
     bids = ["with", "without"]  # Manually defined
