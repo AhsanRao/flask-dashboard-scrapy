@@ -11,12 +11,13 @@ from apps.authentication.forms import LoginForm, CreateAccountForm
 from apps.authentication.models import Users
 from apps.authentication.util import verify_pass
 from apps.authentication.models import AuctionItem
+from flask_login import login_required
 import pandas as pd
 from io import BytesIO
 from flask import Response
 
 @blueprint.route('/show_auction_items')
-# @login_required
+@login_required
 def show_auction_items():
     auction_items = AuctionItem.query.limit(100).all()
     return render_template('home/auction_items.html', auction_items=auction_items, segment='show_auction_items')
@@ -43,7 +44,7 @@ def live_search():
 from sqlalchemy import or_
 
 @blueprint.route('/auctions', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def auctions():
     # Fetch unique values for filters
     businesses = db.session.query(AuctionItem.business).distinct().all()
@@ -133,7 +134,7 @@ def auctions():
     )
 
 @blueprint.route('/exportauction', methods=['POST'])
-# @login_required
+@login_required
 def exportauction():
     # Get filter criteria from form
     business_filter = request.form.get('Business')
@@ -174,7 +175,7 @@ def exportauction():
     return response
 
 @blueprint.route('/update_profile', methods=['POST'])
-# @login_required
+@login_required
 def update_profile():
     # Get data from form
     first_name = request.form.get('fn')
@@ -194,7 +195,7 @@ def update_profile():
     return redirect(url_for('profile_page_route')) # Redirect to the profile page after updating
 
 @blueprint.route('/profile', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def profile():
     if request.method == 'POST':
         # Handle profile updates here
