@@ -42,7 +42,7 @@ def live_search():
 
 from sqlalchemy import or_
 
-@blueprint.route('/filterauction', methods=['GET', 'POST'])
+@blueprint.route('/auctions', methods=['GET', 'POST'])
 # @login_required
 def filterauction():
     # Fetch unique values for filters
@@ -129,7 +129,7 @@ def filterauction():
         reserves=reserves,
         bids=bids,
         auction_statuses=auction_statuses,
-        segment='filterauction'
+        segment='auctions'
     )
 
 @blueprint.route('/exportauction', methods=['POST'])

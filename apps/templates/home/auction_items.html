@@ -156,7 +156,7 @@
                                         <div class="card-header">
                                             <h5>All Auctions</h5>
                                            
-                                            <form style="margin-top:20px;" id="filterForm" method="post" action="{{ url_for('authentication_blueprint.filterauction') }}">
+                                            <form style="margin-top:20px;" id="filterForm" method="post" action="{{ url_for('authentication_blueprint.auctions') }}">
                                                 <!-- ... other form fields ... -->
                                             
                                                 <div class="custom-search">
@@ -180,7 +180,7 @@
                                         </div>
                                         <div class="card-block table-border-style">
                                             <!-- Start of form -->
-                                            <form id="filterForm" method="post" action="{{ url_for('authentication_blueprint.filterauction') }}">
+                                            <form id="filterForm" method="post" action="{{ url_for('authentication_blueprint.auctions') }}">
 
                                                 <div class="row mb-4 p-3">
                                                     <div class="col-lg-2 col-8 mb-2 mb-lg-0">
@@ -220,7 +220,7 @@
                                                     <div class="col-lg-2 col-8 mb-2 mb-lg-0">
                                                         <button type="submit" class="form-control btn-success" id="filtrer">Search</button>
                                                     </div>
-                                                    <form id="filterForm" method="post" action="{{ url_for('authentication_blueprint.filterauction') }}">
+                                                    <form id="filterForm" method="post" action="{{ url_for('authentication_blueprint.auctions') }}">
                                                         <div class="col-lg-2 col-8 mb-2 mb-lg-0">
                                                             <button class="form-control btn-info" type="submit" formaction="{{ url_for('authentication_blueprint.exportauction') }}" id="export">Export</button>
                                                         </div>                      
@@ -644,7 +644,7 @@ function updateTable(items) {
 */
 
 function clearSearch() {
-    window.location.href = "{{ url_for('authentication_blueprint.filterauction') }}";
+    window.location.href = "{{ url_for('authentication_blueprint.auctions') }}";
 }
 
 </script>
