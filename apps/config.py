@@ -7,6 +7,9 @@ class Config(object):
     # Assets Management
     ASSETS_ROOT = os.getenv('ASSETS_ROOT', '/static/assets')  
     
+    SQLALCHEMY_POOL_TIMEOUT = int(os.getenv('SQLALCHEMY_POOL_TIMEOUT', 30))  # For example, 30 seconds.
+    SQLALCHEMY_POOL_SIZE = int(os.getenv('SQLALCHEMY_POOL_SIZE', 50))  # Adjust as n
+    
     # Set up the App SECRET_KEY
     SECRET_KEY  = os.getenv('SECRET_KEY', None)
     if not SECRET_KEY:
@@ -73,6 +76,7 @@ class ProductionConfig(Config):
 
 class DebugConfig(Config):
     DEBUG = True
+    SQLALCHEMY_ECHO = True
 
 # Load all possible configurations
 config_dict = {
