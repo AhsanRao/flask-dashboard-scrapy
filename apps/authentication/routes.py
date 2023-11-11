@@ -102,7 +102,7 @@ def auctions():
             query = query.filter(search_filter)
                 
         # Execute the query
-        auction_items = query.limit(100).all()
+        auction_items = query.all()
     else:
         # Default behavior when the page is loaded
         # if search_term:
@@ -120,7 +120,7 @@ def auctions():
 
         # auction_items = AuctionItem.query.limit(100).all()
         sorting_method = getattr(getattr(AuctionItem, sort_column), sort_direction)
-        auction_items = AuctionItem.query.order_by(sorting_method()).limit(100).all()
+        auction_items = AuctionItem.query.order_by(sorting_method()).all()
 
     # return render_template('home/auction_items.html', auction_items=auction_items, segment='filterauction')
     return render_template(
